@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Production Checklist Application</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <!-- PDF Generation Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Email Service -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="screen active">
+        <div class="login-container">
+            <div class="login-card">
+                <div class="login-header">
+                    <div class="login-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                            <polyline points="10,17 15,12 10,7"/>
+                            <line x1="15" y1="12" x2="3" y2="12"/>
+                        </svg>
+                    </div>
+                    <h1>Inicio de sesión</h1>
+                    <p>Accede al sistema de checklist</p>
+                </div>
+
+                <div class="login-form">
+                    <div class="form-group">
+                        <label>Rol</label>
+                        <div class="select-wrapper">
+                            <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                <circle cx="12" cy="7" r="4"/>
+                            </svg>
+                            <select id="roleSelect">
+                                <option value="operario">Operario</option>
+                                <option value="auditor">Auditor</option>
+                                <option value="ingeniero">Ingeniero</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="passwordGroup" class="form-group hidden">
+                        <label>Contraseña</label>
+                        <div class="input-wrapper">
+                            <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                <circle cx="12" cy="16" r="1"/>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                            </svg>
+                            <input type="password" id="passwordInput" placeholder="Contraseña">
+                            <button type="button" id="togglePassword" class="toggle-password">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button id="loginBtn" class="login-button">Entrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Menu Screen -->
+    <div id="mainMenuScreen" class="screen">
+        <div class="header">
+            <div class="header-content">
+                <div class="header-left">
+                    <svg class="header-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-4"/>
+                        <path d="M9 7V3a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4"/>
+                        <line x1="9" y1="11" x2="15" y2="11"/>
+                    </svg>
+                    <div>
+                        <h1>Menú Principal</h1>
+                        <p>Sistema de Checklist Thermal</p>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div id="roleIndicator" class="role-indicator">
+                        <span id="roleIcon">👷‍♂️</span>
+                        <span id="roleText">Operario</span>
+                    </div>
+                    <button id="logoutBtn" class="logout-button">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                            <polyline points="16,17 21,12 16,7"/>
+                            <line x1="21" y1="12" x2="9" y2="12"/>
+                        </svg>
+                        Salir
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="menu-buttons">
+                <button id="newChecklistBtn" class="menu-button primary">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-4"/>
+                        <path d="M9 7V3a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4"/>
+                        <line x1="9" y1="11" x2="15" y2="11"/>
+                    </svg>
+                    Nuevo Checklist
+                </button>
+                
+                <button id="historyBtn" class="menu-button secondary">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12,6 12,12 16,14"/>
+                    </svg>
+                    Ver Historial
+                </button>
+                
+                <button id="settingsBtn" class="menu-button tertiary hidden">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M12 1v6m0 6v6m6-12h-6m-6 0h6"/>
+                    </svg>
+                    Configuración
+                </button>
+            </div>
+
+            <div class="role-info">
+                <div class="role-info-header">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    <h2>Información del Rol</h2>
+                </div>
+                <div id="roleDescription" class="role-description">
+                    <!-- Role description will be populated by JavaScript -->
+                </div>
+                <div class="current-date">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                    <span id="currentDate"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Checklist Form Screen -->
+    <div id="checklistFormScreen" class="screen">
+        <div class="header">
+            <div class="header-content">
+                <div class="header-left">
+                    <button id="backToMenuBtn" class="back-button">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="15,18 9,12 15,6"/>
+                        </svg>
+                        Volver
+                    </button>
+                    <svg class="header-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-4"/>
+                        <path d="M9 7V3a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4"/>
+                        <line x1="9" y1="11" x2="15" y2="11"/>
+                    </svg>
+                    <div>
+                        <h1>Checklist Thermal</h1>
+                        <p>Sistema de control de calidad de producción</p>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div id="checklistStatus" class="status-badge">En progreso</div>
+                    <div id="formRoleIndicator" class="role-indicator">
+                        <span id="formRoleText">Operario</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-container">
+            <div class="completion-status">
+                <div class="completion-header">
+                    <span>Completado: <span id="completionPercentage">0</span>%</span>
+                    <span id="completionText">Formulario en progreso</span>
+                </div>
+                <div class="progress-bar">
+                    <div id="progressFill" class="progress-fill"></div>
+                </div>
+            </div>
+
+            <form id="checklistForm" class="checklist-form">
+                <div class="form-grid">
+                    <div class="form-section">
+                        <h2>Información General</h2>
+                        <div class="form-group">
+                            <input type="date" name="fecha" placeholder="Fecha" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <input type="text" name="op" placeholder="Orden de Producción" required>
+                            </div>
+                            <div class="form-group">
+                                <input type="text" name="ficha" placeholder="Código de Diseño" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" name="maquina" placeholder="Máquina">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <input type="time" name="hora" placeholder="Hora de inicio">
+                            </div>
+                            <div class="form-group">
+                                <input type="number" name="cantidad" placeholder="Cantidad de piezas" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" name="cliente" placeholder="Cliente" required>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h2>Especificaciones</h2>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <input type="text" name="largo" placeholder="Largo">
+                            </div>
+                            <div class="form-group">
+                                <input type="text" name="ancho" placeholder="Ancho">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <input type="text" name="pigmento" placeholder="Código de Pigmento">
+                            </div>
+                            <div class="form-group">
+                                <input type="text" name="base" placeholder="Base">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h2>Parámetros de Producción</h2>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <input type="number" name="temp1" placeholder="Temperatura Cabezal 1">
+                            </div>
+                            <div class="form-group">
+                                <input type="number" name="temp2" placeholder="Temperatura Cabezal 2">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <input type="number" name="velocidad" placeholder="Velocidad mm/s">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <input type="text" name="desperdicio1" placeholder="Desperdicio Implícito">
+                            </div>
+                            <div class="form-group">
+                                <input type="text" name="desperdicio2" placeholder="Desperdicio Explícito">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h2>Documentación y Observaciones</h2>
+                        <div class="form-group">
+                            <textarea name="observaciones" placeholder="Observaciones (Auditor e Ingeniero)" rows="4"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" name="nombreOperario" placeholder="Nombre del operario" required>
+                        </div>
+                        <div class="form-group">
+                            <textarea name="observacionesOperario" placeholder="Observaciones del operario" rows="4"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="file-label">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                                    <polyline points="21,15 16,10 5,21"/>
+                                </svg>
+                                Foto de primera pieza
+                                <input type="file" name="foto" accept="image/*" capture="environment">
+                            </label>
+                            <div id="photoPreview" class="file-preview hidden"></div>
+                        </div>
+                        <div class="form-group">
+                            <label class="file-label">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                    <polyline points="14,2 14,8 20,8"/>
+                                    <line x1="16" y1="13" x2="8" y2="13"/>
+                                    <line x1="16" y1="17" x2="8" y2="17"/>
+                                    <polyline points="10,9 9,9 8,9"/>
+                                </svg>
+                                Archivo Data Variable
+                                <input type="file" name="archivo">
+                            </label>
+                            <div id="filePreview" class="file-preview hidden"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <div class="form-actions-left">
+                        <button type="button" id="resetBtn" class="action-button secondary">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="15" y1="9" x2="9" y2="15"/>
+                                <line x1="9" y1="9" x2="15" y2="15"/>
+                            </svg>
+                            Reiniciar
+                        </button>
+                        <button type="button" id="printBtn" class="action-button tertiary">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6,9 6,2 18,2 18,9"/>
+                                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+                                <rect x="6" y="14" width="12" height="8"/>
+                            </svg>
+                            Imprimir
+                        </button>
+                    </div>
+                    <div class="form-actions-right">
+                        <button type="button" id="saveChecklistBtn" class="action-button primary hidden">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                                <polyline points="17,21 17,13 7,13 7,21"/>
+                                <polyline points="7,3 7,8 15,8"/>
+                            </svg>
+                            Enviar Checklist
+                        </button>
+                        <button type="button" id="approveChecklistBtn" class="action-button success hidden">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                <polyline points="22,4 12,14.01 9,11.01"/>
+                            </svg>
+                            Aprobar Checklist
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- History Screen -->
+    <div id="historyScreen" class="screen">
+        <div class="header">
+            <div class="header-content">
+                <div class="header-left">
+                    <button id="backToMenuFromHistoryBtn" class="back-button">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="15,18 9,12 15,6"/>
+                        </svg>
+                        Volver
+                    </button>
+                    <svg class="header-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12,6 12,12 16,14"/>
+                    </svg>
+                    <div>
+                        <h1>Historial de Checklists</h1>
+                        <p>Gestiona y revisa todos los checklists de producción</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="history-container">
+            <div class="history-controls">
+                <div class="search-wrapper">
+                    <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="M21 21l-4.35-4.35"/>
+                    </svg>
+                    <input type="text" id="searchInput" placeholder="Buscar por OP, código, cliente u operario...">
+                </div>
+                <div class="filter-wrapper">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46"/>
+                    </svg>
+                    <select id="statusFilter">
+                        <option value="todos">Todos los estados</option>
+                        <option value="aprobados">Aprobados</option>
+                        <option value="pendientes">Pendientes</option>
+                        <option value="vencidos">Vencidos</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="historyStats" class="history-stats">
+                <p>Mostrando <span id="filteredCount">0</span> de <span id="totalCount">0</span> checklists guardados</p>
+            </div>
+
+            <div id="historyGrid" class="history-grid">
+                <!-- Checklist cards will be populated by JavaScript -->
+            </div>
+
+            <div id="emptyState" class="empty-state hidden">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+                <h3>No hay checklists guardados</h3>
+                <p>Aún no se han creado checklists en el sistema.</p>
+                <button id="createFirstChecklistBtn" class="action-button primary">
+                    Crear primer checklist
+                </button>
+            </div>
+
+            <div id="noResultsState" class="empty-state hidden">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="M21 21l-4.35-4.35"/>
+                </svg>
+                <h3>No se encontraron checklists</h3>
+                <p>Intenta ajustar los filtros de búsqueda o verifica los criterios.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Screen -->
+    <div id="settingsScreen" class="screen">
+        <div class="header">
+            <div class="header-content">
+                <div class="header-left">
+                    <button id="backToMenuFromSettingsBtn" class="back-button">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="15,18 9,12 15,6"/>
+                        </svg>
+                        Volver
+                    </button>
+                    <svg class="header-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M12 1v6m0 6v6m6-12h-6m-6 0h6"/>
+                    </svg>
+                    <div>
+                        <h1>Configuración del Sistema</h1>
+                        <p>Ajusta los parámetros de funcionamiento del checklist</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-container">
+            <div class="settings-card">
+                <div class="settings-header">
+                    <h2>Configuración General</h2>
+                    <p>Tu rol actual: <span id="settingsRoleText">Operario</span></p>
+                </div>
+
+                <div class="settings-form">
+                    <div class="form-group">
+                        <label>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                <polyline points="22,6 12,13 2,6"/>
+                            </svg>
+                            Correo de envío PDF
+                        </label>
+                        <input type="email" id="emailSetting" placeholder="correo@empresa.com">
+                        <p class="help-text" id="emailHelpText">Solo los ingenieros pueden modificar este campo</p>
+                    </div>
+
+                    <div class="settings-row">
+                        <div class="form-group">
+                            <label>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <polyline points="12,6 12,12 16,14"/>
+                                </svg>
+                                Tiempo de expiración (minutos)
+                            </label>
+                            <input type="number" id="expirationSetting" min="1">
+                            <p class="help-text">Tiempo límite para aprobar un checklist (por defecto: 1440 min = 24 horas)</p>
+                        </div>
+
+                        <div class="form-group">
+                            <label>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <polyline points="12,6 12,12 16,14"/>
+                                </svg>
+                                Tiempo para iniciar producción (minutos)
+                            </label>
+                            <input type="number" id="waitTimeSetting" min="1">
+                            <p class="help-text">Tiempo mínimo de espera antes de poder iniciar producción (por defecto: 10 min)</p>
+                        </div>
+                    </div>
+
+                    <div id="saveSettingsContainer" class="settings-actions">
+                        <button id="saveSettingsBtn" class="action-button primary">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                                <polyline points="17,21 17,13 7,13 7,21"/>
+                                <polyline points="7,3 7,8 15,8"/>
+                            </svg>
+                            Guardar Configuración
+                        </button>
+                    </div>
+
+                    <div id="restrictedMessage" class="restricted-message hidden">
+                        <div class="warning-box">
+                            <p><strong>Nota:</strong> Solo los usuarios con rol de "Ingeniero" pueden modificar la configuración del sistema. Los auditores pueden ver la configuración actual pero no editarla.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- Checklist Viewer Modal -->
+    <div id="checklistViewerModal" class="modal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h2 id="modalChecklistTitle">Checklist OP-001</h2>
+                <div id="modalChecklistStatus" class="status-badge">Pendiente</div>
+                <button id="closeViewerModal" class="close-button">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="checklistViewerContent">
+                    <!-- Content will be populated by JavaScript -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="modal-footer-left">
+                    <span>Rol actual: <span id="modalUserRole">Operario</span></span>
+                </div>
+                <div class="modal-footer-right">
+                    <button id="downloadPDFBtn" class="action-button tertiary">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7,10 12,15 17,10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                        Descargar PDF
+                    </button>
+                    <button id="closeViewerModalBtn" class="action-button secondary">Cerrar</button>
+                    <button id="approveFromViewerBtn" class="action-button success hidden">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                            <polyline points="22,4 12,14.01 9,11.01"/>
+                        </svg>
+                        Aprobar Checklist
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Email Input Modal -->
+    <div id="emailInputModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                    <polyline points="22,6 12,13 2,6"/>
+                </svg>
+                <h3>Enviar PDF por Correo</h3>
+                <button id="closeEmailModal" class="close-button">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="email-modal-content">
+                    <p>Checklist: <span id="emailChecklistOP">OP-001</span></p>
+                    <p class="email-description">Especifica la dirección de correo electrónico donde deseas recibir el PDF</p>
+                    
+                    <div class="form-group">
+                        <label>Dirección de correo electrónico</label>
+                        <div class="input-wrapper">
+                            <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                <polyline points="22,6 12,13 2,6"/>
+                            </svg>
+                            <input type="email" id="emailInput" placeholder="ejemplo@empresa.com">
+                            <div id="emailValidation" class="validation-icon"></div>
+                        </div>
+                        <p id="emailError" class="error-text hidden">Por favor, ingresa una dirección de correo válida</p>
+                    </div>
+
+                    <div class="info-box">
+                        <p><strong>Nota:</strong> El PDF se generará y enviará automáticamente a la dirección especificada.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelEmailBtn" class="action-button secondary">Cancelar</button>
+                <button id="sendEmailBtn" class="action-button primary" disabled>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="22" y1="2" x2="11" y2="13"/>
+                        <polygon points="22,2 15,22 11,13 2,9"/>
+                    </svg>
+                    Enviar PDF
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>

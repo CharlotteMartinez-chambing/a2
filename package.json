@@ -1,0 +1,24 @@
+{
+  "name": "professional-production-checklist-application",
+  "version": "1.0.0",
+  "description": "Professional Production Checklist Application",
+  "main": "script.js",
+  "scripts": {
+    "dev": "echo 'Development server not configured. To run this project, open index.html in your browser or install a static server like live-server (npm install -g live-server) and run live-server.'",
+    "start": "echo 'To run this project, open index.html in your browser or use a static server.'",
+    "build": "echo 'No build process needed. This is a static HTML/CSS/JS application.'"
+  },
+  "keywords": [
+    "checklist",
+    "production",
+    "quality-control",
+    "thermal"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "emailjs-com": "^3.2.0",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^3.0.1"
+  }
+}
